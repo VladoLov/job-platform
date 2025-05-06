@@ -27,7 +27,7 @@ export const jobSchema = z.object({
   listingDuration: z.number().min(1, "Please select a listing duration"),
   benefits: z.array(z.string()).min(1, "Please select at least one benefit"),
   companyName: z.string().min(1, "Please select a company"),
-  CompanyLocation: z.string().min(1, "Please select a Company location"),
+  companyLocation: z.string().min(1, "Please select a Company location"),
   companyAbout: z
     .string()
     .min(10, "Please provide a brief description of your company"),
