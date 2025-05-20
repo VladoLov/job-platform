@@ -7,6 +7,7 @@ import { prisma } from "./db";
 import { redirect } from "next/navigation";
 import arcjet, { detectBot, shield } from "./arcjet";
 import { request } from "@arcjet/next";
+import { revalidatePath } from "next/cache";
 
 const aj = arcjet
   .withRule(
@@ -118,4 +119,46 @@ export async function createJob(data: z.infer<typeof jobSchema>) {
     },
   });
   return redirect("/");
+}
+
+export async function saveJobPost(jobId: string) {
+  const user = await requiredUser();
+
+  const req = await request();
+
+  const decision = await aj.protect(req);
+
+  if (decision.isDenied()) {
+    throw new Error("Request denied ");
+  }
+
+  await prisma.savedJobPost.create({
+    data: {
+      jobPostId: jobId,
+      userId: user.id as string,
+    },
+  });
+  revalidatePath(`/job/${jobId}`);
+}
+export async function unSaveJobPost(savedJobPostId: string) {
+  const user = await requiredUser();
+
+  const req = await request();
+
+  const decision = await aj.protect(req);
+
+  if (decision.isDenied()) {
+    throw new Error("Request denied ");
+  }
+
+  const data = await prisma.savedJobPost.delete({
+    where: {
+      id: savedJobPostId,
+      userId: user.id,
+    },
+    select: {
+      jobPostId: true,
+    },
+  });
+  revalidatePath(`/job/${data.jobPostId}`);
 }

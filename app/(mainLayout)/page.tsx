@@ -1,3 +1,15 @@
+import JobFilter from "@/components/general/JobFilter";
+import JobListings from "@/components/general/JobListings";
+import { Card } from "@/components/ui/card";
+
 export default function Home() {
-  return <h1>Hello</h1>;
+  return (
+    <div className="grid grid-cols-3 gap-8">
+      <JobFilter />
+
+      <div className="col-span-2 flex flex-col gap-6">
+        <JobListings />
+      </div>
+    </div>
+  );
 }
