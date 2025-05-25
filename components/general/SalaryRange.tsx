@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+"use client";
+
+import { useState } from "react";
 import { Slider } from "../ui/slider";
 import { Control, useController } from "react-hook-form";
 import { formatCurrency } from "@/app/utils/formatCurrency";

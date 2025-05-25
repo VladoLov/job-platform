@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+
 import {
   Form,
   FormControl,
@@ -8,12 +8,6 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { jobSchema } from "@/app/utils/zodSchemas";
-import { z } from "zod";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
 import {
   Select,
   SelectContent,
@@ -23,53 +17,64 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-
-import { countryList } from "@/app/utils/countriesList";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Input } from "../ui/input";
 import SalaryRange from "../general/SalaryRange";
 import JobDescriptionEditor from "../richTextEditor/JobDescription";
 import BenefitsSelector from "../general/BenefitsSelector";
 import { Textarea } from "../ui/textarea";
 import Image from "next/image";
 import { Button } from "../ui/button";
-import { UploadDropzone } from "../general/UploadThingReexported";
 import { XIcon } from "lucide-react";
-import JobListingDurationSelector from "../general/JobListingDurationSelector";
-import { createJob } from "@/app/utils/actions";
+import { UploadDropzone } from "../general/UploadThingReexported";
+import { useForm } from "react-hook-form";
+import { jobSchema } from "@/app/utils/zodSchemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useState } from "react";
+import { editJobPost } from "@/app/utils/actions";
+import { countryList } from "@/app/utils/countriesList";
 
 interface iAppProps {
-  companyName: string;
-  companyLocation: string;
-  companyLogo: string;
-  companyWebsite: string;
-  companyAbout: string;
-  companyXAccount: string | null;
+  jobPost: {
+    jobTitle: string;
+    employmentType: string;
+    location: string;
+    salaryFrom: number;
+    salaryTo: number;
+    jobDescription: string;
+    listingDuration: number;
+    benefits: string[];
+    id: string;
+    Company: {
+      location: string;
+      name: string;
+      about: string;
+      logo: string;
+      website: string;
+      xAccount: string | null;
+    };
+  };
 }
 
-export default function CreateJobForm({
-  companyName,
-  companyLocation,
-  companyLogo,
-  companyWebsite,
-  companyAbout,
-  companyXAccount,
-}: iAppProps) {
+export default function EditJobForm({ jobPost }: iAppProps) {
   const form = useForm<z.infer<typeof jobSchema>>({
     resolver: zodResolver(jobSchema),
     defaultValues: {
-      benefits: [],
-      companyAbout: companyAbout,
-      companyName: companyName,
-      companyLogo: companyLogo,
-      companyWebsite: companyWebsite,
-      companyLocation: companyLocation,
-      companyXAccount: companyXAccount || "",
-      employmentType: "",
-      jobDescription: "",
-      jobTitle: "",
-      listingDuration: 30,
-      location: "",
-      salaryFrom: 0,
-      salaryTo: 0,
+      benefits: jobPost.benefits,
+      companyAbout: jobPost.Company.about,
+      companyName: jobPost.Company.name,
+      companyLogo: jobPost.Company.logo,
+      companyWebsite: jobPost.Company.website,
+      companyLocation: jobPost.Company.location,
+      companyXAccount: jobPost.Company.xAccount || "",
+      employmentType: jobPost.employmentType,
+      jobDescription: jobPost.jobDescription,
+      jobTitle: jobPost.jobTitle,
+      listingDuration: jobPost.listingDuration,
+      location: jobPost.location,
+      salaryFrom: jobPost.salaryFrom,
+      salaryTo: jobPost.salaryTo,
     },
   });
 
@@ -77,7 +82,7 @@ export default function CreateJobForm({
   async function onSubmit(values: z.infer<typeof jobSchema>) {
     try {
       setPending(true);
-      await createJob(values);
+      await editJobPost(values, jobPost.id);
     } catch (error) {
       if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
         console.log("something went wrong", error.message);
@@ -89,10 +94,10 @@ export default function CreateJobForm({
   return (
     <Form {...form}>
       <form
-        className="col-span-1 lg:col-span-2 flex flex-col gap-8"
+        className="col-span-1 lg:col-span-2 flex flex-col gap-8 mb-12"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <Card>
+        <Card className="">
           <CardHeader>
             <CardTitle>Job Information</CardTitle>
           </CardHeader>
@@ -193,7 +198,7 @@ export default function CreateJobForm({
                 </FormControl>
               </FormItem>
             </div>
-            <FormField
+            {/*    <FormField
               control={form.control}
               name="jobDescription"
               render={({ field }) => (
@@ -205,7 +210,7 @@ export default function CreateJobForm({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
             <FormField
               control={form.control}
               name="benefits"
@@ -374,27 +379,9 @@ export default function CreateJobForm({
             />
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Job Listing Duration</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <FormField
-              control={form.control}
-              name="listingDuration"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <JobListingDurationSelector field={field as any} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
-        <Button type="submit" className="w-full  hover:cursor-pointer">
-          {pending ? "Submitting" : "Create Job"}
+
+        <Button type="submit" className="w-full hover:cursor-pointer">
+          {pending ? "Submitting" : "Edit Job"}
         </Button>
       </form>
     </Form>

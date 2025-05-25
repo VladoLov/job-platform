@@ -8,10 +8,10 @@ import Typography from "@tiptap/extension-typography";
 import { ControllerRenderProps } from "react-hook-form";
 
 interface iAppProps {
-  filed: ControllerRenderProps;
+  field: ControllerRenderProps;
 }
 
-export default function JobDescriptionEditor({ filed }: iAppProps) {
+export default function JobDescriptionEditor({ field }: iAppProps) {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -26,9 +26,9 @@ export default function JobDescriptionEditor({ filed }: iAppProps) {
       },
     },
     onUpdate: ({ editor }) => {
-      filed.onChange(JSON.stringify(editor.getJSON()));
+      field.onChange(JSON.stringify(editor.getJSON()));
     },
-    content: filed.value ? JSON.parse(filed.value) : "",
+    content: field.value ? JSON.parse(field.value) : "",
   });
   return (
     <div className="w-full border rounded-lg overflow-hidden bg-card">

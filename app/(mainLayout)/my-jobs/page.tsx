@@ -1,5 +1,6 @@
 import { prisma } from "@/app/utils/db";
 import { requiredUser } from "@/app/utils/requiredUser";
+import CopyLinkMenuItem from "@/components/general/CopyLink";
 import EmptyState from "@/components/general/EmptyState";
 import { Button } from "@/components/ui/button";
 import {
@@ -88,7 +89,7 @@ export default async function MyJobs() {
                   <TableHead>Job Title</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Created at</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -116,7 +117,7 @@ export default async function MyJobs() {
                         day: "2-digit",
                       })}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant={"ghost"} size={"icon"}>
@@ -130,12 +131,17 @@ export default async function MyJobs() {
                               <Pen className="mr-2 h-4 w-4" /> Edit Job
                             </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
+                          {/*  <DropdownMenuItem asChild>
                             <Link href={`/my-jobs/${listing.id}/edit`}>
                               <CopyCheck className="mr-2 h-4 w-4" /> Copy Job
                               Url
                             </Link>
-                          </DropdownMenuItem>
+
+                            
+                          </DropdownMenuItem> */}
+                          <CopyLinkMenuItem
+                            jobUrl={`${process.env.NEXT_PUBLIC_URL}/job/${listing.id}`}
+                          />
                           <DropdownMenuSeparator />
                           <DropdownMenuItem asChild>
                             <Link href={`/my-jobs/${listing.id}/delete`}>

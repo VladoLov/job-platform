@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import arcjet, { detectBot, shield } from "./arcjet";
 import { request } from "@arcjet/next";
 import { revalidatePath } from "next/cache";
+import { inngest } from "./inngest/client";
 
 const aj = arcjet
   .withRule(
@@ -161,4 +162,64 @@ export async function unSaveJobPost(savedJobPostId: string) {
     },
   });
   revalidatePath(`/job/${data.jobPostId}`);
+}
+
+export async function editJobPost(
+  data: z.infer<typeof jobSchema>,
+  jobId: string
+) {
+  const user = await requiredUser();
+
+  const req = await request();
+  const decision = await aj.protect(req);
+  if (decision.isDenied()) {
+    throw new Error("Request denied ");
+  }
+
+  const validatedData = jobSchema.parse(data);
+
+  await prisma.jobPost.update({
+    where: {
+      id: jobId,
+      Company: {
+        userId: user.id,
+      },
+    },
+    data: {
+      jobDescription: validatedData.jobDescription,
+      jobTitle: validatedData.jobTitle,
+      employmentType: validatedData.employmentType,
+      location: validatedData.location,
+      salaryFrom: validatedData.salaryFrom,
+      salaryTo: validatedData.salaryTo,
+      listingDuration: validatedData.listingDuration,
+      benefits: validatedData.benefits,
+    },
+  });
+  return redirect("/my-jobs");
+}
+
+export async function deleteJobPost(jobId: string) {
+  const session = await requiredUser();
+
+  const req = await request();
+  const decision = await aj.protect(req);
+  if (decision.isDenied()) {
+    throw new Error("Request denied ");
+  }
+
+  await prisma.jobPost.delete({
+    where: {
+      id: jobId,
+      Company: {
+        userId: session.id,
+      },
+    },
+  });
+
+  await inngest.send({
+    name: "job/cancel.expiration",
+    data: { jobId: jobId },
+  });
+  return redirect("/my-jobs");
 }
