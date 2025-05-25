@@ -62,8 +62,8 @@ export default function JobCard({ job }: iAppProps) {
                   *
                 </span>
                 <p className="text-muted-foreground text-sm">
-                  {formatCurrency(job.salaryFrom)} -
-                  {formatCurrency(job.salaryTo)}
+                  {formatCurrency(job.salaryFrom, "BAM")} -{" "}
+                  {formatCurrency(job.salaryTo, "BAM")}
                 </p>
               </div>
             </div>
